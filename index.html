@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agenda Telefônica</title>
+</head>
+<body>
+    <h1>Agenda Telefônica</h1>
+
+    <form action="insert.php" method="post">
+        Nome: <input type="text" name="name" required><br>
+        Telefone: <input type="text" name="phone" required><br>
+        <input type="submit" value="Adicionar Contato">
+    </form>
+
+    <h2>Contatos</h2>
+    <div id="contacts">
+        <!-- Aqui os contatos serão listados -->
+    </div>
+
+    <script>
+        function fetchContacts() {
+            fetch('fetch.php')
+                .then(response => response.json())
+                .then(data => {
+                    const contactsDiv = document.getElementById('contacts');
+                    contactsDiv.innerHTML = '';
+                    data.forEach(contact => {
+                        contactsDiv.innerHTML += `
+                            <p>
+                                ${contact.name} - ${contact.phone}
+                                <button onclick="deleteContact(${contact.id})">Deletar</button>
+                            </p>
+                        `;
+                    });
+                });
+        }
+
+        function deleteContact(id) {
+            fetch('delete.php?id=' + id)
+                .then(response => response.text())
+                .then(data => {
+                    fetchContacts();
+                });
+        }
+
+        // Carregar contatos ao carregar a página
+        window.onload = fetchContacts;
+    </script>
+</body>
+</html>
