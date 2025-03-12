@@ -1,0 +1,41 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: neondb
+          POSTGRES_USER: neondb_owner
+          POSTGRES_PASSWORD: npg_lxT9dREQLF0y
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }}" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        extensions: pdo_pgsql
+
+    - name: Install dependencies
+      run: composer install
+
+    - name: Run Tests
+      run: |
+        php -S localhost:8000 -t ./ &
+        sleep 5
+        curl http://localhost:8000
